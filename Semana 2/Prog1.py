@@ -1,3 +1,5 @@
+# STRINGS
+
 Message = "H3LL0 W0RLD"
 print(Message)
 print(len(Message))
