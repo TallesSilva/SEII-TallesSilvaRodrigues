@@ -1,3 +1,5 @@
+#manipulando arquivos do sistema
+
 with open("Modulos/teste.txt", "r") as f:
     size = 5
     f_text = f.read(size)

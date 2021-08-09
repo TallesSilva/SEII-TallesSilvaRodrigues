@@ -1,3 +1,5 @@
+#renomeando arquivos do sistema
+
 import os
 
 os.chdir('/home/talles/Documentos/SEII-TallesSilvaRodrigues/Semana 2/Modulos/')

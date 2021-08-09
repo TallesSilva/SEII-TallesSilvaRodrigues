@@ -1,3 +1,5 @@
+#Funções
+
 def Prints(strings):
     print(strings)
 
