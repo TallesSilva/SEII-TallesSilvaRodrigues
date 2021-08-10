@@ -8,5 +8,6 @@ https://www.youtube.com/watch?v=YYXdXT2l-Gg&list=PL-osiE80TeTskrapNbzXhwoFUiLCjG
 
 ## Numpy
 
-Reproduza  os  códigos APENASdos  vídeos de  1  até 9
+Reproduza  os  códigos APENASdos  vídeos de  1  até 9.
+
 https://www.youtube.com/watch?v=DcfYgePyedM
