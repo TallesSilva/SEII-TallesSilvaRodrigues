@@ -42,11 +42,12 @@ if __name__ == "__main__":
     ship = pygame.image.load(r"Images/drone.png") #carrega a imagem do drone
     control = pygame.image.load(r"Images/control.png")
     analog = pygame.image.load(r"Images/analog button.png")
-    pygame.mouse.set_visible(0) #mouse invisivel 
+    pygame.mouse.set_visible(1) #mouse invisivel 
     pygame.display.set_caption('Drone Simulator')
     pygame.display.flip()
     
-
+    delta = (0,0)
+    autonomo =False
     pi = np.pi
     x_limit= 50, 450
     y_limit= 435, -890 
@@ -55,7 +56,11 @@ if __name__ == "__main__":
     aceleracao = 0
     x = 500
     y = 435
+    y1= 0
+    x1 = 0
+    erro = (0,0)
     drone = Drone()
+
     running = True
     while running:
         clock.tick(60)
@@ -66,7 +71,7 @@ if __name__ == "__main__":
         screen.blit(analog, ((fi*10)+185,480))
         key = pygame.key.get_pressed()
         pos = pygame.mouse.get_pos()
-        screen.blit(pointerImg, (pos[0]+45,pos[1]+25))
+        screen.blit(pointerImg, (pos[0]-15,pos[1]-27))
         
 
         for event in pygame.event.get(): #procura um evento
@@ -79,36 +84,49 @@ if __name__ == "__main__":
         #------------Comando Horizontal------------------#
         if key[pygame.K_LEFT]: #se clicar pra esquerda
             fi -= pi/180  #decresce a posiçaõ no eixo horizontal para o sentido da direita
-            if fi<=pi/4: fi=pi/4
         elif key[pygame.K_RIGHT]: #se clicar para direita
             fi += pi/180 #incrementa a posição no eixo horizontal para o sentido da esquerda
-            if fi>=3*pi/4: fi=3*pi/4
             
         #------------Comando Vertical---------------#
         if key[pygame.K_UP]: #se clicar pra cima
             aceleracao += 0.5#decresce a posição no eixo vertical para cima
         elif key[pygame.K_DOWN]: #se clicar para baixo
             aceleracao -= 0.5 #decresce a posiçaõ no eixo vertical para baixo
-        if aceleracao>=10: aceleracao=10
-        elif aceleracao<=-10: aceleracao=-10
-
+        
         #------------Comando Waypoint-----------------#
         if event.type == MOUSEBUTTONDOWN: #se o evento for clique do mouse
-            x,y = pygame.mouse.get_pos() #transforma x e y na posiçao do clique
-        
+            x1,y1 = pygame.mouse.get_pos() #transforma x e y na posiçao do clique
+            autonomo = True
+            aceleracao = -(y1-y)
+            
+            
+        erro = (x1-x, y-y1)  
+        if autonomo == True:
+            fi -= np.tan((y1-y)/(x1-x))/150
+            aceleracao -= (y1-y)/50
+            delta = (x1-x,y-y1)
+
+
+        if fi<=pi/4: fi=pi/4
+        elif fi>=3*pi/4: fi=3*pi/4
+
+        if aceleracao>=10: aceleracao=10
+        elif aceleracao<=-10: aceleracao=-10
 
         x += drone.F_angular(aceleracao, fi)
         y_force = drone.F_motor1(aceleracao,fi)
         y = y_force + y
         y += drone.gravity()        
-        print(str(y_force) + ' ' + str(np.degrees(fi))) 
+        
+        #print(str(y_force) + ' ' + str(np.degrees(fi))) 
+        print(str()) 
 
         #-----------Limites do Mapa-------------------#
-        if y <= 10: y = 10
-        elif y >= 435: y = 435
+        if y <= 0: y = 0
+        elif y >= 420: y = 420
 
-        if x <= 10: x = 10
-        elif x >= 890: x = 890
+        if x <= 0: x = 0
+        elif x >= 800: x = 800
         #---------------------------------------------#
 
         pygame.display.update()
