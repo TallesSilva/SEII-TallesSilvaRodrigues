@@ -21,11 +21,11 @@ class Drone:
         #-----condiçaõ max de força do motor
         if v>=self.F_max:v=self.F_max
         elif v<=self.F_min:v=self.F_min
-        return v
+        return -v
 
     def F_angular(self, accelerate, fi): #força horizontal dos motores
         #-----Calculo da Força horizontal
-        f_motor=drone.F_motor1(accelerate, 0)*2
+        f_motor=drone.F_motor1(accelerate, pi/2)*2
         v=np.cos(fi)*f_motor
         return v
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     pygame.mouse.set_visible(0) #mouse invisivel
     running = True
     pygame.display.set_caption('Drone Simulator')
-    
+    pygame.display.flip()
     pi = np.pi
     x_limit= 50, 450
     y_limit= 435, -890 
@@ -57,11 +57,12 @@ if __name__ == "__main__":
     while running:
         clock.tick(60)
         screen.blit(bg, (0,0))
-        screen.blit(ship, (x-50, y-25))
+        screen.blit(pygame.transform.rotate(ship, -np.degrees(fi)), (x, y))
        
         key = pygame.key.get_pressed()
         pos = pygame.mouse.get_pos()
-        screen.blit(pointerImg, (pos[0]-20,pos[1]-10))
+        screen.blit(pointerImg, (pos[0],pos[1]))
+        
 
         for event in pygame.event.get(): #procura um evento
             if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: #se o evento for do tipo quit
@@ -72,21 +73,23 @@ if __name__ == "__main__":
 
         #------------Comando Horizontal------------------#
         if key[pygame.K_LEFT]: #se clicar pra esquerda
-            fi -= pi/360  #decresce a posiçaõ no eixo horizontal para o sentido da direita
+            fi -= pi/180  #decresce a posiçaõ no eixo horizontal para o sentido da direita
             if fi<=pi/4: fi=pi/4
         elif key[pygame.K_RIGHT]: #se clicar para direita
-            fi += pi/360 #incrementa a posição no eixo horizontal para o sentido da esquerda
+            fi += pi/180 #incrementa a posição no eixo horizontal para o sentido da esquerda
             if fi>=3*pi/4: fi=3*pi/4
-
+            
+        pygame.display.flip()
         #------------Comando Vertical---------------#
         if key[pygame.K_UP]: #se clicar pra cima
-            aceleracao += 0.1#decresce a posição no eixo vertical para cima
-            if aceleracao>=0.98: aceleracao=0.3
+            aceleracao += 0.5#decresce a posição no eixo vertical para cima
         elif key[pygame.K_DOWN]: #se clicar para baixo
-            aceleracao += -0.1 #decresce a posiçaõ no eixo vertical para baixo
-            if aceleracao<=-0.3: aceleracao=-0.3
-        y_force += drone.F_motor1(aceleracao,fi)*2
-        
+            aceleracao -= 0.5 #decresce a posiçaõ no eixo vertical para baixo
+        if aceleracao>=10: aceleracao=10
+        elif aceleracao<=-10: aceleracao=-10
+
+        y_force = drone.F_motor1(aceleracao,fi)*2
+
         #------------Comando Waypoint-----------------#
         if event.type == MOUSEBUTTONDOWN: #se o evento for clique do mouse
             x,y = pygame.mouse.get_pos() #transforma x e y na posiçao do clique
@@ -96,7 +99,7 @@ if __name__ == "__main__":
         
         y = y_force + y
         y += drone.gravity()        
-        print(str(np.degrees(fi))) 
+        print(str(y_force) + ' ' + str(np.degrees(fi))) 
         #-----------Limites do Mapa-------------------#
         if y <= 10: y = 10
         elif y >= 435: y = 435
