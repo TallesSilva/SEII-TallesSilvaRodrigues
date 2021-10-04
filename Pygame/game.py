@@ -81,9 +81,9 @@ if __name__ == "__main__":
         for event in pygame.event.get(): #procura um evento
             if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: #se o evento for do tipo quit
                 running = False #fecha o looping
-                ypoints = acelera
-                plt.plot(ypoints, linestyle = 'dotted')
-                plt.show()
+                #ypoints = acelera
+                #plt.plot(ypoints, linestyle = 'dotted')
+                #plt.show()
                 pygame.display.quit() #fecha o game
                 sys.exit() #fecha o sistema
 
@@ -93,13 +93,13 @@ if __name__ == "__main__":
             fi -= pi/180  #decresce a posiçaõ no eixo horizontal para o sentido da direita
         elif key[pygame.K_RIGHT]: #se clicar para direita
             fi += pi/180 #incrementa a posição no eixo horizontal para o sentido da esquerda
-            
+            autonomo = False  
         #------------Comando Vertical---------------#
         if key[pygame.K_UP]: #se clicar pra cima
             aceleracao += 0.5#decresce a posição no eixo vertical para cima
         elif key[pygame.K_DOWN]: #se clicar para baixo
             aceleracao -= 0.5 #decresce a posiçaõ no eixo vertical para baixo
-        
+            autonomo = False   
         #------------Comando Waypoint-----------------#
         if event.type == MOUSEBUTTONDOWN: #se o evento for clique do mouse
             x1,y1 = pygame.mouse.get_pos() #transforma x e y na posiçao do clique
@@ -107,19 +107,21 @@ if __name__ == "__main__":
             autonomo = True            
         
         
-        iteracao += 1
-        erro_x = (x-x1)
-        erro_y = (y-y1)
-        erro_acumulado_y += erro_y * iteracao
-        #erro_acumulado_x += (fi-np.arctan(erro_y/erro_x))*iteracao
-        erro_acumulado_x += ((-erro_x/1800)/90)*iteracao
-        derivativo_x = (erro_acumulado_x - last_error)/iteracao
-        last_error = erro_acumulado_x
+        
         if autonomo == True:
+            iteracao += 1
+            erro_x = (x-x1)
+            erro_y = (y-y1)
+            erro_acumulado_y += erro_y * iteracao
+            #erro_acumulado_x += (fi-np.arctan(erro_y/erro_x))*iteracao
+            erro_acumulado_x += ((-erro_x/1800)/90)*iteracao
+            derivativo_x = (erro_acumulado_x - last_error)/iteracao
+            last_error = erro_acumulado_x
             aceleracao = (erro_acumulado_y * 0.000005) + (erro_y * 0.1)
-            fi = ((-erro_x/1800)/90)*900 + erro_acumulado_x*0.5 + derivativo_x*10
+            fi = ((-erro_x/1800)/90)*2500 + erro_acumulado_x*0.5 + derivativo_x*1000
             acelera.append(fi)
             #fi = integrativo_x*0.000001 + derivativo_x*0.001
+            
 
 
         if fi<=pi/4: fi=pi/4
@@ -133,9 +135,7 @@ if __name__ == "__main__":
         y = y_force + y
         y += drone.gravity()        
         
-        #print(str(y_force) + ' ' + str(np.degrees(fi))) 
-        print(str(np.arctan(erro_y/erro_x)) + ' ' + str(np.degrees(np.arctan(erro_y/erro_x))) )
-
+        
         #-----------Limites do Mapa-------------------#
         if y <= 0: y = 0
         elif y >= 420: y = 420
