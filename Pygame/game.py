@@ -2,13 +2,14 @@ import pygame
 import sys
 from pygame.locals import *
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Drone:
 
     def __init__(self):
         self.m = 0.3 #kg
         self.g = 9.8 #gravidade
-        self.F_max = 5 
+        self.F_max = 6 
         self.F_min = 0
 
     def gravity(self): #gravidade é massa * aceleração * F_angular 0
@@ -49,18 +50,21 @@ if __name__ == "__main__":
     delta = (0,0)
     autonomo =False
     pi = np.pi
-    x_limit= 50, 450
-    y_limit= 435, -890 
     y_force = 0
     fi = pi/2
     aceleracao = 0
+    acelera = []
     x = 500
     y = 435
     y1= 0
     x1 = 0
     erro = (0,0)
     drone = Drone()
-
+    erro_acumulado_y = 0
+    erro_acumulado_x = 0 
+    iteracao=0
+    last_error =0
+    derivativo_x=0
     running = True
     while running:
         clock.tick(60)
@@ -77,6 +81,9 @@ if __name__ == "__main__":
         for event in pygame.event.get(): #procura um evento
             if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: #se o evento for do tipo quit
                 running = False #fecha o looping
+                ypoints = acelera
+                plt.plot(ypoints, linestyle = 'dotted')
+                plt.show()
                 pygame.display.quit() #fecha o game
                 sys.exit() #fecha o sistema
 
@@ -96,15 +103,23 @@ if __name__ == "__main__":
         #------------Comando Waypoint-----------------#
         if event.type == MOUSEBUTTONDOWN: #se o evento for clique do mouse
             x1,y1 = pygame.mouse.get_pos() #transforma x e y na posiçao do clique
-            autonomo = True
-            aceleracao = -(y1-y)
-            
-            
-        erro = (x1-x, y-y1)  
+            iteracao = 0
+            autonomo = True            
+        
+        
+        iteracao += 1
+        erro_x = (x-x1)
+        erro_y = (y-y1)
+        erro_acumulado_y += erro_y * iteracao
+        #erro_acumulado_x += (fi-np.arctan(erro_y/erro_x))*iteracao
+        erro_acumulado_x += ((-erro_x/1800)/90)*iteracao
+        derivativo_x = (erro_acumulado_x - last_error)/iteracao
+        last_error = erro_acumulado_x
         if autonomo == True:
-            fi -= np.tan((y1-y)/(x1-x))/150
-            aceleracao -= (y1-y)/50
-            delta = (x1-x,y-y1)
+            aceleracao = (erro_acumulado_y * 0.000005) + (erro_y * 0.1)
+            fi = ((-erro_x/1800)/90)*900 + erro_acumulado_x*0.5 + derivativo_x*10
+            acelera.append(fi)
+            #fi = integrativo_x*0.000001 + derivativo_x*0.001
 
 
         if fi<=pi/4: fi=pi/4
@@ -119,7 +134,7 @@ if __name__ == "__main__":
         y += drone.gravity()        
         
         #print(str(y_force) + ' ' + str(np.degrees(fi))) 
-        print(str()) 
+        print(str(np.arctan(erro_y/erro_x)) + ' ' + str(np.degrees(np.arctan(erro_y/erro_x))) )
 
         #-----------Limites do Mapa-------------------#
         if y <= 0: y = 0
