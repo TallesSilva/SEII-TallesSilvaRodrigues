@@ -46,25 +46,24 @@ if __name__ == "__main__":
     pygame.mouse.set_visible(1) #mouse invisivel 
     pygame.display.set_caption('Drone Simulator')
     pygame.display.flip()
+    drone = Drone()
     
-    delta = (0,0)
     autonomo =False
     pi = np.pi
     y_force = 0
     fi = pi/2
     aceleracao = 0
-    acelera = []
+    data = []
     x = 500
     y = 435
     y1= 0
     x1 = 0
-    erro = (0,0)
-    drone = Drone()
     erro_acumulado_y = 0
     erro_acumulado_x = 0 
     iteracao=0
     last_error =0
     derivativo_x=0
+    
     running = True
     while running:
         clock.tick(60)
@@ -77,11 +76,11 @@ if __name__ == "__main__":
         pos = pygame.mouse.get_pos()
         screen.blit(pointerImg, (pos[0]-15,pos[1]-27))
         
-
+        #-----------Comando de encerrar o programa----------#
         for event in pygame.event.get(): #procura um evento
             if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: #se o evento for do tipo quit
                 running = False #fecha o looping
-                #ypoints = acelera
+                #ypoints = data
                 #plt.plot(ypoints, linestyle = 'dotted')
                 #plt.show()
                 pygame.display.quit() #fecha o game
@@ -94,19 +93,19 @@ if __name__ == "__main__":
         elif key[pygame.K_RIGHT]: #se clicar para direita
             fi += pi/180 #incrementa a posição no eixo horizontal para o sentido da esquerda
             autonomo = False  
+ 
         #------------Comando Vertical---------------#
         if key[pygame.K_UP]: #se clicar pra cima
             aceleracao += 0.5#decresce a posição no eixo vertical para cima
         elif key[pygame.K_DOWN]: #se clicar para baixo
             aceleracao -= 0.5 #decresce a posiçaõ no eixo vertical para baixo
             autonomo = False   
+
         #------------Comando Waypoint-----------------#
         if event.type == MOUSEBUTTONDOWN: #se o evento for clique do mouse
             x1,y1 = pygame.mouse.get_pos() #transforma x e y na posiçao do clique
             iteracao = 0
             autonomo = True            
-        
-        
         
         if autonomo == True:
             iteracao += 1
@@ -119,17 +118,18 @@ if __name__ == "__main__":
             last_error = erro_acumulado_x
             aceleracao = (erro_acumulado_y * 0.000005) + (erro_y * 0.1)
             fi = ((-erro_x/1800)/90)*2500 + erro_acumulado_x*0.5 + derivativo_x*1000
-            acelera.append(fi)
+            data.append(fi)
             #fi = integrativo_x*0.000001 + derivativo_x*0.001
             
 
-
+        #-----------Limites adotados para o Drone----------#
         if fi<=pi/4: fi=pi/4
         elif fi>=3*pi/4: fi=3*pi/4
 
         if aceleracao>=10: aceleracao=10
         elif aceleracao<=-10: aceleracao=-10
 
+        #-----------Forças aplicadas no sistema------------#
         x += drone.F_angular(aceleracao, fi)
         y_force = drone.F_motor1(aceleracao,fi)
         y = y_force + y
