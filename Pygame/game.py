@@ -43,7 +43,7 @@ if __name__ == "__main__":
     ship = pygame.image.load(r"Images/drone.png") #carrega a imagem do drone
     control = pygame.image.load(r"Images/control.png")
     analog = pygame.image.load(r"Images/analog button.png")
-    pygame.mouse.set_visible(1) #mouse invisivel 
+    pygame.mouse.set_visible(0) #mouse invisivel 
     pygame.display.set_caption('Drone Simulator')
     pygame.display.flip()
     drone = Drone()
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         screen.blit(analog, ((fi*10)+185,480))
         key = pygame.key.get_pressed()
         pos = pygame.mouse.get_pos()
-        screen.blit(pointerImg, (pos[0]-15,pos[1]-27))
+        screen.blit(pointerImg, (pos[0],pos[1]))
         
         #-----------Comando de encerrar o programa----------#
         for event in pygame.event.get(): #procura um evento
