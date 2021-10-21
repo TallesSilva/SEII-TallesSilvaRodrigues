@@ -9,7 +9,7 @@ class Drone:
     def __init__(self):
         self.m = 0.3 #kg
         self.g = 9.8 #gravidade
-        self.F_max = 6 
+        self.F_max = 6
         self.F_min = 0
 
     def gravity(self): #gravidade é massa * aceleração * F_angular 0
@@ -18,7 +18,7 @@ class Drone:
 
     def F_motor1(self, accelerate, fi): #força vertical
         #-----cálculo da força vertical do motor 2
-        v=self.m*accelerate*np.sin(fi)*2
+        v=self.m*accelerate*np.sin(fi)*2s
         #-----condiçaõ max de força do motor
         if v>=self.F_max:v=self.F_max
         elif v<=self.F_min:v=self.F_min
@@ -80,9 +80,9 @@ if __name__ == "__main__":
         for event in pygame.event.get(): #procura um evento
             if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: #se o evento for do tipo quit
                 running = False #fecha o looping
-                #ypoints = data
-                #plt.plot(ypoints, linestyle = 'dotted')
-                #plt.show()
+                ypoints = data
+                plt.plot(ypoints, linestyle = 'dotted')
+                plt.show()
                 pygame.display.quit() #fecha o game
                 sys.exit() #fecha o sistema
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
             last_error = erro_acumulado_x
             aceleracao = (erro_acumulado_y * 0.000005) + (erro_y * 0.1)
             fi = erro_acumulado_x*0.5 + derivativo_x*1000
-            data.append(fi)            
+            data.append(fi)           
 
         #-----------Limites adotados para o Drone----------#
         if fi<=pi/4: fi=pi/4
