@@ -117,7 +117,7 @@ if __name__ == "__main__":
             derivativo_x = (erro_acumulado_x - last_error)/iteracao
             last_error = erro_acumulado_x
             aceleracao = (erro_acumulado_y * 0.000005) + (erro_y * 0.1)
-            fi = ((-erro_x/1800)/90)*2500 + erro_acumulado_x*0.5 + derivativo_x*1000
+            fi = erro_acumulado_x*0.5 + derivativo_x*1000
             data.append(fi)            
 
         #-----------Limites adotados para o Drone----------#
